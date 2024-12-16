@@ -8,6 +8,34 @@
       "when": 1720968254566,
       "tag": "0000_groovy_doctor_faustus",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1734096039816,
+      "tag": "0001_low_inertia",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1734141478913,
+      "tag": "0002_soft_carlie_cooper",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1734264315879,
+      "tag": "0003_worried_white_tiger",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1734313316899,
+      "tag": "0004_nifty_black_crow",
+      "breakpoints": true
     }
   ]
 }

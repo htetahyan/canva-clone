@@ -7,6 +7,8 @@ import { useGetProject } from "@/features/projects/api/use-get-project";
 
 import { Editor } from "@/features/editor/components/editor";
 import { Button } from "@/components/ui/button";
+import { useSession } from "next-auth/react";
+import { isAdmin } from "@/features/editor/utils";
 
 interface EditorProjectIdPageProps {
   params: {
@@ -23,6 +25,7 @@ const EditorProjectIdPage = ({
     isError
   } = useGetProject(params.projectId);
 
+const canMove=isAdmin()
   if (isLoading || !data) {
     return (
       <div className="h-full flex flex-col items-center justify-center">
@@ -47,7 +50,7 @@ const EditorProjectIdPage = ({
     );
   }
 
-  return <Editor initialData={data} />
+  return <Editor initialData={data} canMove={canMove} />
 };
  
 export default EditorProjectIdPage;

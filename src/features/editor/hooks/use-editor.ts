@@ -12,12 +12,14 @@ import {
   BuildEditorProps, 
   RECTANGLE_OPTIONS,
   EditorHookProps,
+  LINE_OPTIONS,
   STROKE_DASH_ARRAY,
   TEXT_OPTIONS,
   FONT_FAMILY,
   FONT_WEIGHT,
   FONT_SIZE,
   JSON_KEYS,
+  DASHLINE_OPTIONS,
 } from "@/features/editor/types";
 import { useHistory } from "@/features/editor/hooks/use-history";
 import { 
@@ -208,6 +210,38 @@ const buildEditor = ({
         }
       });
     },
+    changeImageToCircle : () => {
+      const objects = canvas.getActiveObjects();
+      objects.forEach((object) => {
+        if (object.type === "image") {
+          const imageObject = object as fabric.Image;
+    
+          // Get the dimensions of the image (width and height)
+          const width = imageObject.width! * imageObject.scaleX!;
+          const height = imageObject.height! * imageObject.scaleY!;
+          
+          // Calculate radius for the circle (use the smaller dimension for a perfect circle)
+          const radius = Math.min(width, height) / 2;
+    
+          // Create a circular clip path for the image
+          const circleClipPath = new fabric.Circle({
+            radius: radius,
+            originX: "center",
+            originY: "center",
+           
+            left: width / 2,
+            top: height / 2,
+          });
+    
+          // Set the clip path to the image
+          imageObject.clipPath = circleClipPath;
+    
+          // Refresh the canvas to show the update
+          canvas.requestRenderAll();
+        }
+      });
+    },
+    
     addImage: (value: string) => {
       fabric.Image.fromURL(
         value,
@@ -272,39 +306,64 @@ const buildEditor = ({
 
       return value;
     },
-    changeTextAlign: (value: string) => {
+      changeTextAlign: (value: string) => {
+        canvas.getActiveObjects().forEach((object) => {
+          if (isTextType(object.type)) {
+            // @ts-ignore
+            // Faulty TS library, textAlign exists.
+            object.set({ textAlign: value });
+          }
+        });
+        canvas.renderAll();
+      },
+     changeBulletList:(value:boolean)=>{
       canvas.getActiveObjects().forEach((object) => {
         if (isTextType(object.type)) {
           // @ts-ignore
           // Faulty TS library, textAlign exists.
-          object.set({ textAlign: value });
+          object.set({ shadow: value });
         }
-      });
+        
+      })
       canvas.renderAll();
-    },
-    getActiveTextAlign: () => {
+
+     } ,  getActiveBulletList: () => {
       const selectedObject = selectedObjects[0];
 
       if (!selectedObject) {
-        return "left";
+        return false;
       }
 
       // @ts-ignore
       // Faulty TS library, textAlign exists.
-      const value = selectedObject.get("textAlign") || "left";
+      const value = selectedObject.get("list") || false;
 
-      return value;
-    },
-    changeFontUnderline: (value: boolean) => {
-      canvas.getActiveObjects().forEach((object) => {
-        if (isTextType(object.type)) {
-          // @ts-ignore
-          // Faulty TS library, underline exists.
-          object.set({ underline: value });
+      return value as boolean;
+     }
+     ,
+     getActiveTextAlign: () => {
+        const selectedObject = selectedObjects[0];
+
+        if (!selectedObject) {
+          return "left";
         }
-      });
-      canvas.renderAll();
-    },
+
+        // @ts-ignore
+        // Faulty TS library, textAlign exists.
+        const value = selectedObject.get("textAlign") || "left";
+
+        return value;
+      },
+      changeFontUnderline: (value: boolean) => {
+        canvas.getActiveObjects().forEach((object) => {
+          if (isTextType(object.type)) {
+            // @ts-ignore
+            // Faulty TS library, underline exists.
+            object.set({ underline: value });
+          }
+        });
+        canvas.renderAll();
+      },
     getActiveFontUnderline: () => {
       const selectedObject = selectedObjects[0];
 
@@ -390,6 +449,52 @@ const buildEditor = ({
       const workspace = getWorkspace();
       workspace?.sendToBack();
     },
+     group : () => {
+      const activeObjects = canvas.getActiveObjects();
+    
+      if (activeObjects.length > 1) { // Ensure there are multiple objects to group
+        // Deselect individual objects
+        canvas.discardActiveObject();
+    
+        // Create a group from selected objects
+        const group = new fabric.Group(activeObjects, {
+          selectable: true,
+          evented: true,
+        });
+    
+        // Remove individual objects and add the group to canvas
+        activeObjects.forEach((object) => canvas.remove(object));
+        canvas.add(group);
+    
+        // Set the group as the active selection
+        canvas.setActiveObject(group);
+        canvas.requestRenderAll();
+      }
+    },
+    
+     unGroup :() => {
+      const activeObject = canvas.getActiveObject();
+    
+      if (activeObject && activeObject.type === 'group') {
+         // Check if it's a group
+         //@ts-ignore
+        const objects = activeObject.getObjects();
+    
+        // Ungroup: Add individual objects back to canvas
+          //@ts-ignore
+        activeObject._objects.forEach((object) => {
+          canvas.add(object);
+        });
+    
+        // Remove the group from the canvas
+        canvas.remove(activeObject);
+        canvas.discardActiveObject();
+    
+        // Re-render the canvas
+        canvas.requestRenderAll();
+      }
+    },    
+   
     sendBackwards: () => {
       canvas.getActiveObjects().forEach((object) => {
         canvas.sendBackwards(object);
@@ -534,6 +639,31 @@ const buildEditor = ({
       );
       addToCanvas(object);
     },
+    addLine: () => {
+      const { left, top, width, stroke, strokeWidth, strokeDashArray } = LINE_OPTIONS;
+    
+      const object = new fabric.Line([left, top, left + width, top], {
+        stroke: stroke,
+        strokeWidth: strokeWidth,
+        strokeDashArray: strokeDashArray, // Optional: add dashes if needed
+      });
+    
+      addToCanvas(object);
+    }
+    
+,     
+addDashedLine: () => {
+  const { left, top, width, stroke, strokeWidth, strokeDashArray } = DASHLINE_OPTIONS;
+
+  const object = new fabric.Line([left, top, left + width, top], {
+    stroke: stroke,
+    strokeWidth: strokeWidth,
+    strokeDashArray: strokeDashArray, // Dashed effect
+  });
+
+  addToCanvas(object);
+}
+,
     canvas,
     getActiveFontWeight: () => {
       const selectedObject = selectedObjects[0];

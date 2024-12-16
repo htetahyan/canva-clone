@@ -124,7 +124,7 @@ export const SignUpCard = () => {
             )}
             Continue with Google
           </Button>
-          <Button
+         {/*  <Button
             disabled={mutation.isPending || loading}
             onClick={() => onProviderSignUp("github")}
             variant="outline"
@@ -137,7 +137,7 @@ export const SignUpCard = () => {
               <FaGithub className="mr-2 size-5 top-2.5 left-2.5 absolute" />
             )}
             Continue with Github
-          </Button>
+          </Button> */}
         </div>
         <p className="text-xs text-muted-foreground">
           Already have an account?{" "}

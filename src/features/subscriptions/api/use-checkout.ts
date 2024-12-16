@@ -4,27 +4,31 @@ import { InferResponseType } from "hono";
 
 import { client } from "@/lib/hono";
 
-type ResponseType = InferResponseType<typeof client.api.subscriptions.checkout["$post"], 200>;
+type ResponseType = InferResponseType<typeof client.api.codes[":id"]["$post"], 200>;
 
 export const useCheckout = () => {
-  const mutation = useMutation<
-    ResponseType,
-    Error
-  >({
-    mutationFn: async () => {
-      const response = await client.api.subscriptions.checkout.$post();
-
+  const mutation = useMutation<ResponseType, Error, string>({
+    mutationFn: async (id: string) => {
+      const response = await client.api.codes[":id"].$post({
+        param: {
+          id,
+        },
+      });
+      console.log(response);
       if (!response.ok) {
-        throw new Error("Failed to create session");
+        const {error} = await response.json() as any;
+        throw new Error(error??"code not found or limit reached");
       }
 
-      return await response.json();
+      return response.json(); // Ensure proper typing here
     },
-    onSuccess: ({ data }) => {
-      window.location.href = data;
+    onSuccess: (data) => {
+  
+       toast.success("Code created successfully!. Limit is "+data.data.totalTemplates+" templates"+" and remaining "+data.data.usedTemplates+" templates");
+      
     },
-    onError: () => {
-      toast.error("Failed to create session");
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 

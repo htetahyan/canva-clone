@@ -1,14 +1,16 @@
 import { IoTriangle } from "react-icons/io5";
 import { FaDiamond } from "react-icons/fa6";
-import { FaCircle, FaSquare, FaSquareFull } from "react-icons/fa";
+import { FaCircle, FaRegHandshake, FaSquare, FaSquareFull } from "react-icons/fa";
 
 import { ActiveTool, Editor } from "@/features/editor/types";
 import { ShapeTool } from "@/features/editor/components/shape-tool";
 import { ToolSidebarClose } from "@/features/editor/components/tool-sidebar-close";
 import { ToolSidebarHeader } from "@/features/editor/components/tool-sidebar-header";
-
+import { CgBorderStyleDashed } from "react-icons/cg";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { TbLineHeight } from "react-icons/tb";
+import { RxDividerHorizontal } from "react-icons/rx";
 
 interface ShapeSidebarProps {
   editor: Editor | undefined;
@@ -63,6 +65,11 @@ export const ShapeSidebar = ({
             onClick={() => editor?.addDiamond()}
             icon={FaDiamond}
           />
+            <ShapeTool
+            onClick={() => editor?.addLine()}
+            icon={RxDividerHorizontal }
+          />
+          <ShapeTool onClick={() => editor?.addDashedLine()} icon={CgBorderStyleDashed } />
         </div>
       </ScrollArea>
       <ToolSidebarClose onClick={onClose} />

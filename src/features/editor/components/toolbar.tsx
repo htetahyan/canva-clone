@@ -8,7 +8,7 @@ import {
 } from "react-icons/fa";
 import { TbColorFilter } from "react-icons/tb";
 import { BsBorderWidth } from "react-icons/bs";
-import { RxTransparencyGrid } from "react-icons/rx";
+import { RxListBullet, RxTransparencyGrid } from "react-icons/rx";
 import { 
   ArrowUp, 
   ArrowDown, 
@@ -51,6 +51,8 @@ export const Toolbar = ({
   const initialFontWeight = editor?.getActiveFontWeight() || FONT_WEIGHT;
   const initialFontStyle = editor?.getActiveFontStyle();
   const initialFontLinethrough = editor?.getActiveFontLinethrough();
+  const initialBulletList = editor?.getActiveBulletList();
+
   const initialFontUnderline = editor?.getActiveFontUnderline();
   const initialTextAlign = editor?.getActiveTextAlign();
   const initialFontSize = editor?.getActiveFontSize() || FONT_SIZE
@@ -64,6 +66,7 @@ export const Toolbar = ({
     fontLinethrough: initialFontLinethrough,
     fontUnderline: initialFontUnderline,
     textAlign: initialTextAlign,
+    textBullets: false,
     fontSize: initialFontSize,
   });
 
@@ -96,6 +99,7 @@ export const Toolbar = ({
       textAlign: value,
     }));
   };
+   
 
   const toggleBold = () => {
     if (!selectedObject) {
@@ -139,7 +143,18 @@ export const Toolbar = ({
       fontLinethrough: newValue,
     }));
   };
-
+ 
+const toggleBullet = () => {
+  if (!selectedObject) {
+    return;
+  }
+const newValue=properties.textBullets?true:false
+  editor?.changeBulletList(newValue);
+  setProperties((current) => ({
+    ...current,
+    fontLinethrough: false,
+  }));
+}
   const toggleUnderline = () => {
     if (!selectedObject) {
       return;
@@ -350,6 +365,22 @@ export const Toolbar = ({
       )}
       {isText && (
         <div className="flex items-center h-full justify-center">
+          <Hint label="Bullet" side="bottom" sideOffset={5}>
+            <Button
+              onClick={toggleBullet}
+              size="icon"
+              variant="ghost"
+              className={cn(
+                properties.fontLinethrough && "bg-gray-100"
+              )}
+            >
+              <RxListBullet className="size-4" />
+            </Button>
+          </Hint>
+        </div>
+      )}
+      {isText && (
+        <div className="flex items-center h-full justify-center">
          <FontSizeInput
             value={properties.fontSize}
             onChange={onChangeFontSize}
@@ -402,7 +433,7 @@ export const Toolbar = ({
       <div className="flex items-center h-full justify-center">
         <Hint label="Send backwards" side="bottom" sideOffset={5}>
           <Button
-            onClick={() => editor?.sendBackwards()}
+            onClick={() => editor?.group()}
             size="icon"
             variant="ghost"
           >
@@ -450,4 +481,4 @@ export const Toolbar = ({
       </div>
     </div>
   );
-};
+}

@@ -21,6 +21,7 @@ export const Banner = () => {
         json: "",
         width: 900,
         height: 1200,
+        codeId: "admin",
       },
       {
         onSuccess: ({ data }) => {
@@ -38,10 +39,10 @@ export const Banner = () => {
         </div>
       </div>
       <div className="flex flex-col gap-y-2">
-        <h1 className="text-xl md:text-3xl font-semibold">Visualize your ideas with The Canvas</h1>
-        <p className="text-xs md:text-sm mb-2">
+        <h1 className="text-xl md:text-3xl font-semibold">Visualize your ideas </h1>
+    {/*     <p className="text-xs md:text-sm mb-2">
           Turn inspiration into design in no time. Simply upload an image and let AI do the rest.
-        </p>
+        </p> */}
         <Button
           disabled={mutation.isPending}
           onClick={onClick}

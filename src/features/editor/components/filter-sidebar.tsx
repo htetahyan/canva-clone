@@ -25,6 +25,9 @@ export const FilterSidebar = ({
     onChangeActiveTool("select");
   };
 
+  // Function to change the selected image to a circle
+ 
+
   return (
     <aside
       className={cn(
@@ -49,6 +52,16 @@ export const FilterSidebar = ({
               {filter}
             </Button>
           ))}
+          
+          {/* Button to change selected image to circle */}
+          <Button
+            variant="secondary"
+            size="lg"
+            className="w-full h-16 justify-start text-left mt-4"
+            onClick={()=>editor?.changeImageToCircle}
+          >
+            Change to Circle
+          </Button>
         </div>
       </ScrollArea>
       <ToolSidebarClose onClick={onClose} />

@@ -15,7 +15,9 @@ export const useCreateProject = () => {
       const response = await client.api.projects.$post({ json });
 
       if (!response.ok) {
-        throw new Error("Something went wrong");
+        // Parse the error response to extract the message
+        const errorResponse = await response.json() as any;
+        throw new Error(errorResponse.error || "Something went wrong");
       }
 
       return await response.json();
@@ -25,9 +27,11 @@ export const useCreateProject = () => {
 
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
-    onError: () => {
+    onError: (error) => {
+      // Display the error message from the API response
       toast.error(
-        "Failed to create project. The session token may have expired, logout and login again, and everything will work fine."
+        error.message ||
+          "Failed to create project. The session token may have expired, logout and login again, and everything will work fine."
       );
     },
   });

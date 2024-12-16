@@ -36,6 +36,7 @@ const app = new Hono()
         email,
         name,
         password: hashedPassword,
+        
       });
       
       return c.json(null, 200);

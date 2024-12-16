@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { Hono } from "hono";
-import { eq, and, desc, asc } from "drizzle-orm";
+import { eq, and, desc, asc, sql } from "drizzle-orm";
 import { verifyAuth } from "@hono/auth-js";
 import { zValidator } from "@hono/zod-validator";
 
 import { db } from "@/db/drizzle";
-import { projects, projectsInsertSchema } from "@/db/schema";
+import { codes, codesAndUsers, projects, projectsInsertSchema, users } from "@/db/schema";
 
 const app = new Hono()
   .get(
@@ -71,10 +71,10 @@ const app = new Hono()
     async (c) => {
       const auth = c.get("authUser");
       const { id } = c.req.valid("param");
-
       if (!auth.token?.id) {
         return c.json({ error: "Unauthorized" }, 401);
       }
+      const user= await db.select().from(users).where(eq(users.id, auth.token.id!));
 
       const data = await db
         .select()
@@ -91,7 +91,7 @@ const app = new Hono()
       }
 
       const project = data[0];
-
+console.log(user[0])
       const duplicateData = await db
         .insert(projects)
         .values({
@@ -99,6 +99,7 @@ const app = new Hono()
           json: project.json,
           width: project.width,
           height: project.height,
+          isTemplate: user[0].isAdmin,
           userId: auth.token.id,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -227,28 +228,59 @@ const app = new Hono()
         json: true,
         width: true,
         height: true,
+        codeId: true
       }),
     ),
     async (c) => {
       const auth = c.get("authUser");
-      const { name, json, height, width } = c.req.valid("json");
-
+      const { name, json, height, width,codeId } = c.req.valid("json");
+      console.log(auth);
+      
       if (!auth.token?.id) {
         return c.json({ error: "Unauthorized" }, 401);
-      }
+      } 
+      const user=await db.select().from(users).where(eq(users.id, auth.token.id!))
+console.log(user);
+const codeAndUser=await db.select().from(codesAndUsers).where(
+  and(
+    eq(codesAndUsers.codeId, codeId as string),
+    eq(codesAndUsers.userId, auth!.token!.id as string),
+  )
+) 
 
-      const data = await db
+
+if(codeAndUser.length===0){
+  return c.json({ error: "Cannot find this code in your account!" }, 500);
+}
+const code=await db.select().from(codes).where(eq(codes.id, codeId!))
+
+if(code[0].totalTemplates===code[0].usedTemplates){
+  return c.json({ error:" Code limit reached" }, 404);
+}
+
+    
+        const data = await db
         .insert(projects)
         .values({
           name,
           json,
           width,
           height,
-          userId: auth.token.id,
+          codeId,
+          isTemplate: user[0].isAdmin,
+          userId: auth!.token!.id!,
           createdAt: new Date(),
           updatedAt: new Date(),
         })
         .returning();
+        await db.update(codes) .set({
+          usedTemplates: sql`${codes.usedTemplates} + 1`,
+      
+
+        }) 
+
+      
+  
 
       if (!data[0]) {
         return c.json({ error: "Something went wrong" }, 400);

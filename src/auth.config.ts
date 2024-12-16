@@ -12,7 +12,7 @@ import { db } from "@/db/drizzle";
 import { users } from "@/db/schema";
 
 const CredentialsSchema = z.object({
-  email: z.string().email(),
+  username: z.string(),
   password: z.string(),
 });
 
@@ -21,7 +21,6 @@ declare module "next-auth/jwt" {
     id: string | undefined;
   }
 }
-
 declare module "@auth/core/jwt" {
   interface JWT {
     id: string | undefined;
@@ -33,8 +32,8 @@ export default {
   providers: [
     Credentials({
       credentials: {
-        email: { label: "Email", type: "email" },
-        pasword: { label: "Password", type: "password" },
+        username: { label: "Username", type: "text" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         const validatedFields = CredentialsSchema.safeParse(credentials);
@@ -43,12 +42,12 @@ export default {
           return null;
         }
 
-        const { email, password } = validatedFields.data;
+        const { username, password } = validatedFields.data;
 
         const query = await db
           .select()
           .from(users)
-          .where(eq(users.email, email));
+          .where(eq(users.username, username));
 
         const user = query[0];
 
@@ -67,8 +66,8 @@ export default {
 
         return user;
       },
-    }), 
-    GitHub, 
+    }),
+    GitHub,
     Google
   ],
   pages: {
@@ -82,6 +81,7 @@ export default {
     session({ session, token }) {
       if (token.id) {
         session.user.id = token.id;
+        
       }
 
       return session;

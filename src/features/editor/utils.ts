@@ -1,6 +1,7 @@
 import { uuid } from "uuidv4";
 import { fabric } from "fabric";
 import type { RGBColor } from "react-color";
+import { useSession } from "next-auth/react";
 
 export function transformText(objects: any) {
   if (!objects) return;
@@ -141,3 +142,7 @@ export const createFilter = (value: string) => {
 
   return effect;
 };
+
+export const isAdmin=()=> {
+  const id=useSession()?.data?.user?.id;
+  return id==="17d9e92c-7a9b-4daf-a3db-86441bca4439"}

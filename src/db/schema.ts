@@ -14,8 +14,10 @@ export const users = pgTable("user", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  name: text("name"),
+  username: text("name").notNull().unique(),
+  isAdmin: boolean("isAdmin").default(false),
   email: text("email").notNull(),
+  
   emailVerified: timestamp("emailVerified", { mode: "date" }),
   image: text("image"),
   password: text("password"), 
@@ -24,7 +26,23 @@ export const users = pgTable("user", {
 export const usersRelations = relations(users, ({ many }) => ({
   projects: many(projects),
 }));
-
+export const codesAndUsers=pgTable("codesAndUsers",{
+  codeId:text("codeId").notNull().references(() => codes.id, { onDelete: "cascade" }),
+  userId:text("userId").notNull().references(() => users.id, { onDelete: "cascade" }),
+  
+  createdAt:timestamp("createdAt", { mode: "date" }).notNull(),
+  updatedAt:timestamp("updatedAt", { mode: "date" }).notNull(),
+})
+export const codesAndUsersRelations = relations(codesAndUsers, ({ one }) => ({
+  code: one(codes, {
+    fields: [codesAndUsers.codeId],
+    references: [codes.id],
+  }),
+  user: one(users, {
+    fields: [codesAndUsers.userId],
+    references: [users.id],
+  }),
+}))
 export const accounts = pgTable(
   "account",
   {
@@ -91,7 +109,20 @@ export const authenticators = pgTable(
     }),
   })
 )
-
+export const codes = pgTable("code", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+    
+  totalTemplates: integer("totalTemplates").notNull(),
+  usedTemplates: integer("usedTemplates").notNull().default(0),
+  createdAt: timestamp("createdAt", { mode: "date" }).notNull(),
+  updatedAt: timestamp("updatedAt", { mode: "date" }).notNull(),
+})
+export const codesRelations = relations(codes, ({ many }) => ({
+  projects: many(projects),
+  users: many(users),
+}))
 export const projects = pgTable("project", {
   id: text("id")
     .primaryKey()
@@ -102,6 +133,7 @@ export const projects = pgTable("project", {
     .references(() => users.id, {
       onDelete: "cascade",
     }),
+    codeId: text("codeId").references(() => codes.id, { onDelete: "no action" }),
   json: text("json").notNull(),
   height: integer("height").notNull(),
   width: integer("width").notNull(),

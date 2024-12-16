@@ -136,6 +136,15 @@ export const RECTANGLE_OPTIONS = {
   height: 400,
   angle: 0,
 };
+export const LINE_OPTIONS = {
+  left: 100,              // x-coordinate of the line's start point
+  top: 100,               // y-coordinate of the line's start point
+  stroke: STROKE_COLOR,   // Line color
+  strokeWidth: STROKE_WIDTH,  // Line thickness
+  strokeDashArray: [],    // Optional: no dashes (solid line)
+  width: 600,             // Width of the line
+  height: 0,              // Height is 0 since it's a horizontal line
+};
 
 export const DIAMOND_OPTIONS = {
   left: 100,
@@ -167,6 +176,17 @@ export const TEXT_OPTIONS = {
   fontSize: FONT_SIZE,
   fontFamily: FONT_FAMILY,
 };
+export const DASHLINE_OPTIONS = {
+  left: 100,                // Starting X position of the line
+  top: 100,                 // Starting Y position of the line
+  stroke: STROKE_COLOR,     // Color of the line
+  strokeWidth: STROKE_WIDTH, // Thickness of the line
+  strokeDashArray: [20, 10], // Dash pattern (length of dash and space)
+  width: 600,               // Length of the line (horizontal)
+  height: 0,                // Set to 0 for a horizontal line
+  angle: 0,                 // Rotation angle (0 means no rotation)
+};
+
 
 export interface EditorHookProps {
   defaultState?: string;
@@ -215,6 +235,9 @@ export interface Editor {
   canRedo: () => boolean;
   autoZoom: () => void;
   zoomIn: () => void;
+  group:()=>void;
+  unGroup:()=>void;
+  changeImageToCircle:()=>void;
   zoomOut: () => void;
   getWorkspace: () => fabric.Object | undefined;
   changeBackground: (value: string) => void;
@@ -229,6 +252,9 @@ export interface Editor {
   changeFontSize: (value: number) => void;
   getActiveFontSize: () => number;
   changeTextAlign: (value: string) => void;
+
+  changeBulletList: (value:boolean) => void;
+  getActiveBulletList:()=>boolean;
   getActiveTextAlign: () => string;
   changeFontUnderline: (value: boolean) => void;
   getActiveFontUnderline: () => boolean;
@@ -255,9 +281,12 @@ export interface Editor {
   addTriangle: () => void;
   addInverseTriangle: () => void;
   addDiamond: () => void;
+  addLine:()=> void;
+  addDashedLine:()=> void;
   canvas: fabric.Canvas;
   getActiveFillColor: () => string;
   getActiveStrokeColor: () => string;
+
   getActiveStrokeWidth: () => number;
   getActiveStrokeDashArray: () => number[];
   selectedObjects: fabric.Object[];
