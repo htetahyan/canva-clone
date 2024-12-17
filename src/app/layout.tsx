@@ -11,7 +11,7 @@ import { Providers } from "@/components/providers";
 
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({subsets:['cyrillic-ext']})
 
 export const metadata: Metadata = {
   title: "new project",

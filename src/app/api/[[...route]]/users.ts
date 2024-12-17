@@ -13,28 +13,28 @@ const app = new Hono()
     zValidator(
       "json",
       z.object({
-        name: z.string(),
-        email: z.string().email(),
+        username: z.string(),
+
         password: z.string().min(3).max(20),
       })
     ),
     async (c) => {
-      const { name, email, password } = c.req.valid("json");
+      const { username, password } = c.req.valid("json");
 
       const hashedPassword = await bcrypt.hash(password, 12);
 
       const query = await db
         .select()
         .from(users)
-        .where(eq(users.email, email));
+        .where(eq(users.username, username));
 
       if (query[0]) {
         return c.json({ error: "Email already in use" }, 400);
       }
 
       await db.insert(users).values({
-        email,
-        name,
+
+        username,
         password: hashedPassword,
         
       });

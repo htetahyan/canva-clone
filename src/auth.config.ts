@@ -3,11 +3,9 @@ import bcrypt from "bcryptjs";
 import type { NextAuthConfig } from "next-auth";
 import { eq } from "drizzle-orm";
 import { JWT } from "next-auth/jwt";
-import GitHub from "next-auth/providers/github";
-import Google from "next-auth/providers/google";
+
 import Credentials from "next-auth/providers/credentials";
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
-
 import { db } from "@/db/drizzle";
 import { users } from "@/db/schema";
 
@@ -16,11 +14,7 @@ const CredentialsSchema = z.object({
   password: z.string(),
 });
 
-declare module "next-auth/jwt" {
-  interface JWT {
-    id: string | undefined;
-  }
-}
+
 declare module "@auth/core/jwt" {
   interface JWT {
     id: string | undefined;
@@ -67,8 +61,7 @@ export default {
         return user;
       },
     }),
-    GitHub,
-    Google
+
   ],
   pages: {
     signIn: "/sign-in",
@@ -79,8 +72,11 @@ export default {
   },
   callbacks: {
     session({ session, token }) {
+
       if (token.id) {
+          // @ts-ignore
         session.user.id = token.id;
+        session.user.name=token.name
         
       }
 
@@ -88,10 +84,12 @@ export default {
     },
     jwt({ token, user }) {
       if (user) {
-        token.id = user.id;  
+        token.id = user.id;
+        token.name=user.name
       }
 
       return token;
     }
   },
+
 } satisfies NextAuthConfig

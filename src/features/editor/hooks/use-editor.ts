@@ -111,6 +111,7 @@ const buildEditor = ({
     downloadFile(fileString, "json");
   };
 
+
   const loadJson = (json: string) => {
     const data = JSON.parse(json);
 
@@ -814,6 +815,7 @@ export const useEditor = ({
         undo,
         redo,
         canUndo,
+
         canRedo,
         autoZoom,
         copy,
