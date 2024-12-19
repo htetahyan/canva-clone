@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TbLineHeight } from "react-icons/tb";
 import { RxDividerHorizontal } from "react-icons/rx";
+import { EclipseIcon } from "lucide-react";
 
 interface ShapeSidebarProps {
   editor: Editor | undefined;
@@ -56,6 +57,7 @@ export const ShapeSidebar = ({
             onClick={() => editor?.addTriangle()}
             icon={IoTriangle}
           />
+         
           <ShapeTool
             onClick={() => editor?.addInverseTriangle()}
             icon={IoTriangle}

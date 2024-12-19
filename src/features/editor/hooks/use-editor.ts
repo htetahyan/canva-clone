@@ -4,6 +4,7 @@ import { useCallback, useState, useMemo, useRef } from "react";
 import { 
   Editor, 
   FILL_COLOR,
+  ECLIPSE_OPTIONS,
   STROKE_WIDTH,
   STROKE_COLOR,
   CIRCLE_OPTIONS,
@@ -117,6 +118,7 @@ const buildEditor = ({
 
     canvas.loadFromJSON(data, () => {
       autoZoom();
+
     });
   };
 
@@ -148,6 +150,12 @@ const buildEditor = ({
     saveSvg,
     saveJson,
     loadJson,
+    lockObject: () => {
+      canvas.getActiveObjects().forEach((object) => {
+        object.selectable = false;
+      });
+      save();
+    },
     canUndo,
     canRedo,
     autoZoom,
@@ -169,6 +177,15 @@ const buildEditor = ({
         new fabric.Point(center.left, center.top),
         zoomRatio < 0.2 ? 0.2 : zoomRatio,
       );
+    },
+    lockSelection: () => {
+      canvas.getActiveObjects().forEach((object) => {
+        object.selectable = false;
+      });
+
+      canvas.discardActiveObject();
+      canvas.renderAll();
+      save();
     },
     changeSize: (value: { width: number; height: number }) => {
       const workspace = getWorkspace();
@@ -258,6 +275,96 @@ const buildEditor = ({
           crossOrigin: "anonymous",
         },
       );
+    },
+    
+    replaceImage: (value: string) => {
+      { const activeObject = canvas.getActiveObject();
+         if (!activeObject) { console.error("No active object to replace"); return; } 
+         const oldProperties = { left: activeObject.left, top: activeObject.top, angle: activeObject.angle, scaleX: activeObject.scaleX, scaleY: activeObject.scaleY, flipX: activeObject.flipX, flipY: activeObject.flipY, originX: activeObject.originX, originY: activeObject.originY, };
+          fabric.Image.fromURL( value, (image) => { const workspace = getWorkspace(); 
+            image.scaleToWidth(workspace?.width || 0); image.scaleToHeight(workspace?.height || 0); // Set new image properties to match the old one 
+            image.set(oldProperties); // Remove old image and add the new one 
+       canvas.remove(activeObject); addToCanvas(image); }, { crossOrigin: "anonymous",}
+         )}
+    
+      
+    },
+      handleCrop : (croppedImage: string) => {
+       
+          const activeObject = canvas.getActiveObject() as fabric.Image;
+          if (activeObject && activeObject.type === 'image') {
+            console.log("Cropped Image Data URL:", croppedImage);
+            activeObject.setSrc(croppedImage);
+            canvas.renderAll();
+            console.log("Image source updated and canvas re-rendered");
+            save();
+          
+      }},
+      cropCircle: (croppedImage: string) => {
+        const activeObject = canvas.getActiveObject() as fabric.Image;
+        if (activeObject && activeObject.type === 'image') {
+          const { width, height, scaleY, scaleX, top, left } = activeObject!;
+          const image = new Image();
+          console.log("Cropped Image Data URL:", croppedImage);
+          const svgMask=new fabric.Circle({
+            radius: activeObject!.width!/2,
+            originX: "center",
+            originY: "center",
+            strokeWidth: 0,
+           
+            left: 0,
+            top: 0,
+            strokeLineJoin: 'bevel',
+          })
+          svgMask.scaleToWidth(scaleX! * width!);
+    svgMask.scaleToHeight(scaleY! * height!);
+    image.src = croppedImage;
+    image.onload = function() {
+      const img = new fabric.Image(image);
+
+      img.set({
+        originX: 'center',
+        originY: 'center',
+        flipX: false,
+        flipY: false,
+        filters: activeObject.filters,
+      });
+      img.scaleToWidth(scaleX! * width!);
+      img.scaleToHeight(scaleY! * height!);
+      img.applyFilters();
+      img.setCoords();
+        
+      const group = new fabric.Group([img], {
+        clipPath: svgMask,
+
+        top,
+        left,
+       
+      });
+      group.scaleToWidth(scaleX! * width!);
+      group.scaleToHeight(scaleY! * height!);
+
+      canvas.remove(activeObject);
+      group.center().setCoords();
+      canvas.add(group);
+          canvas.renderAll();
+          console.log("Image source updated and canvas re-rendered");
+          save();
+        }
+      }},
+      
+    editImage: (value: string) => {
+      const activeObject = canvas.getActiveObject();
+      if (!activeObject) {
+        console.error("No active object to edit");
+        return;
+      }
+      if (activeObject.type === "image") {
+        const imageObject = activeObject as fabric.Image;
+        imageObject.setSrc(value);
+        canvas.renderAll();
+      }
+      save();
     },
     delete: () => {
       canvas.getActiveObjects().forEach((object) => canvas.remove(object));
@@ -563,6 +670,28 @@ const buildEditor = ({
 
       addToCanvas(object);
     },
+   addEclipse: () => {
+     const object = new fabric.Ellipse({
+       ...ECLIPSE_OPTIONS,
+       fill: fillColor,
+       stroke: strokeColor,
+       strokeWidth: strokeWidth,
+       strokeDashArray: strokeDashArray,
+     });
+  
+     addToCanvas(object);
+   },
+   cropImage: () => {
+     const activeObject = canvas.getActiveObject();
+  
+     if (activeObject && activeObject.type === 'image') {
+       // @ts-ignore
+       activeObject.cropToCanvas();
+     }
+  
+     canvas.renderAll();
+   },
+   
     addSoftRectangle: () => {
       const object = new fabric.Rect({
         ...RECTANGLE_OPTIONS,

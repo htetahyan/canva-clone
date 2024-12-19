@@ -21,7 +21,7 @@ export const Banner = () => {
         json: "",
         width: 900,
         height: 1200,
-        codeId: "admin",
+       
       },
       {
         onSuccess: ({ data }) => {

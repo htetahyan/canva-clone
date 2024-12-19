@@ -1,11 +1,11 @@
 import { z } from "zod";
 import { Hono } from "hono";
-import { eq, and, desc, asc } from "drizzle-orm";
+import { eq, and, desc, asc, sql } from "drizzle-orm";
 import { verifyAuth } from "@hono/auth-js";
 import { zValidator } from "@hono/zod-validator";
 
 import { db } from "@/db/drizzle";
-import { projects, projectsInsertSchema } from "@/db/schema";
+import { projects, projectsInsertSchema, templatesAndUsers, users } from "@/db/schema";
 
 const app = new Hono()
     .get(
@@ -20,21 +20,44 @@ const app = new Hono()
         ),
         async (c) => {
             const { page, limit } = c.req.valid("query");
-
+        
             const data = await db
                 .select()
                 .from(projects)
                 .where(eq(projects.isTemplate, true))
                 .limit(limit)
-                .offset((page -1) * limit)
+                .offset((page - 1) * limit)
                 .orderBy(
                     asc(projects.isPro),
-                    desc(projects.updatedAt),
+                    desc(projects.updatedAt)
                 );
-
-            return c.json({ data });
-        },
-    )
+        
+            const userId = c.get("authUser")?.token?.id;
+            if (!userId) {
+                return c.json({ error: "Unauthorized" }, 401);
+            }
+        
+            const isCurrentUserOwner = async (projectId: string) => {
+                const data = await db
+                    .select()
+                    .from(templatesAndUsers)
+                    .where(and(eq(templatesAndUsers.userId, userId), eq(templatesAndUsers.templateId, projectId)));
+                return data.length > 0;
+            };
+        
+            const newData = await Promise.all(data.map(async (item) => {
+                const isOwner = await isCurrentUserOwner(item.id);
+                return {
+                    ...item,
+                    isCurrentUserOwner: isOwner
+                };
+            }));
+        
+            console.log(data, newData);
+        
+            return c.json({ data: newData });
+        }
+    )        
     .delete(
         "/:id",
         verifyAuth(),
@@ -224,6 +247,7 @@ const app = new Hono()
             "json",
             projectsInsertSchema.pick({
                 name: true,
+               id: true,
                 json: true,
                 width: true,
                 height: true,
@@ -231,10 +255,24 @@ const app = new Hono()
         ),
         async (c) => {
             const auth = c.get("authUser");
-            const { name, json, height, width } = c.req.valid("json");
+            const { name, json, height, width,id } = c.req.valid("json");
+const user= await db.select().from(users).where(eq(users.id, auth!.token!.id!))
 
             if (!auth.token?.id) {
                 return c.json({ error: "Unauthorized" }, 401);
+            }
+
+            if(user[0].isAdmin && id){
+                return c.json({ error: "u can't edit template here" }, 401);
+            }
+            const templateAndUser=await db.select().from(templatesAndUsers).where(and(eq(templatesAndUsers.templateId,id!),eq(templatesAndUsers.userId,auth!.token!.id!)))
+
+            if(!templateAndUser.length && id){
+                if(user[0].credits===0){
+                    return c.json({ error: "You don't have enough credits" }, 401);
+                }
+                await db.update(users).set({credits:sql`${users.credits} - 1`}).where(eq(users.id,auth!.token!.id!))
+            await db.insert(templatesAndUsers).values({userId:auth!.token!.id!,templateId:id!})
             }
 
             const data = await db
@@ -244,6 +282,7 @@ const app = new Hono()
                     json,
                     width,
                     height,
+                    isTemplate:user[0].isAdmin?true:false,
                     userId: auth.token.id,
                     createdAt: new Date(),
                     updatedAt: new Date(),

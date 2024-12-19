@@ -103,6 +103,7 @@ export type ActiveTool =
   | "stroke-width"
   | "font"
   | "opacity"
+  | "cropImage"
   | "filter"
   | "settings"
   | "ai"
@@ -116,7 +117,15 @@ export const STROKE_DASH_ARRAY = [];
 export const FONT_FAMILY = "Arial";
 export const FONT_SIZE = 32;
 export const FONT_WEIGHT = 400;
-
+export const ECLIPSE_OPTIONS = {
+  left: 100,
+  top: 100,
+  fill: FILL_COLOR,
+  stroke: STROKE_COLOR,
+  strokeWidth: STROKE_WIDTH,
+  rx: 200,
+  ry: 100,
+}
 export const CIRCLE_OPTIONS = {
   radius: 225,
   left: 100,
@@ -233,12 +242,17 @@ export interface Editor {
   onRedo: () => void;
   canUndo: () => boolean;
   canRedo: () => boolean;
+  handleCrop: (croppedImage: string) => void;
+  cropCircle: ( croppedImage: string) => void;
+  cropImage: () => void;
   autoZoom: () => void;
   zoomIn: () => void;
   group:()=>void;
   unGroup:()=>void;
   changeImageToCircle:()=>void;
   zoomOut: () => void;
+  lockObject: () => void;
+  lockSelection: () => void;
   getWorkspace: () => fabric.Object | undefined;
   changeBackground: (value: string) => void;
   changeSize: (value: { width: number; height: number }) => void;
@@ -248,6 +262,8 @@ export interface Editor {
   onPaste: () => void;
   changeImageFilter: (value: string) => void;
   addImage: (value: string) => void;
+  replaceImage: (value: string) => void;
+  editImage: (value: string) => void;
   delete: () => void;
   changeFontSize: (value: number) => void;
   getActiveFontSize: () => number;
@@ -278,6 +294,7 @@ export interface Editor {
   addCircle: () => void;
   addSoftRectangle: () => void;
   addRectangle: () => void;
+  addEclipse: () => void;
   addTriangle: () => void;
   addInverseTriangle: () => void;
   addDiamond: () => void;

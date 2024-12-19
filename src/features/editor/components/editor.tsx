@@ -164,9 +164,9 @@ export const Editor = ({ initialData ,canMove}: EditorProps) => {
         onChangeActiveTool={onChangeActiveTool}
       />
       <div className="absolute h-[calc(100%-68px)] w-full top-[68px] flex">
-        {canMove && (
+     
           <>
-            <Sidebar
+            <Sidebar canMove={canMove}
               activeTool={activeTool}
               onChangeActiveTool={onChangeActiveTool}
             />
@@ -185,7 +185,7 @@ export const Editor = ({ initialData ,canMove}: EditorProps) => {
             <DrawSidebar editor={editor} activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} />
             <SettingsSidebar editor={editor} activeTool={activeTool} onChangeActiveTool={onChangeActiveTool} />
           </>
-        )}
+        
         <main className="bg-muted flex-1 overflow-auto relative flex flex-col">
          
             <Toolbar

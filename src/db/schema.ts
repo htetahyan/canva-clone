@@ -112,7 +112,18 @@ export const projects = pgTable("project", {
   createdAt: timestamp("createdAt", { mode: "date" }).notNull(),
   updatedAt: timestamp("updatedAt", { mode: "date" }).notNull(),
 });
+export const templatesAndUsers=pgTable("templatesAndUsers",{
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("userId")
+    .notNull()
+    .references(() => users.id, {
+      onDelete: "cascade",
+    }),
+  templateId: text("templateId").notNull().references(() => projects.id),
 
+})
 export const projectsRelations = relations(projects, ({ one }) => ({
   user: one(users, {
     fields: [projects.userId],

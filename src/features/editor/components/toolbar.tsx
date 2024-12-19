@@ -8,7 +8,8 @@ import {
 } from "react-icons/fa";
 import { TbColorFilter } from "react-icons/tb";
 import { BsBorderWidth } from "react-icons/bs";
-import { RxListBullet, RxTransparencyGrid } from "react-icons/rx";
+import { RxGroup, RxListBullet, RxTransparencyGrid } from "react-icons/rx";
+import {LiaObjectGroup, LiaObjectUngroup} from 'react-icons/lia'
 import { 
   ArrowUp, 
   ArrowDown, 
@@ -33,6 +34,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Hint } from "@/components/hint";
 import { Button } from "@/components/ui/button";
+import { FaCropSimple } from "react-icons/fa6";
 
 interface ToolbarProps {
   editor: Editor | undefined;
@@ -433,7 +435,7 @@ const newValue=properties.textBullets?true:false
       <div className="flex items-center h-full justify-center">
         <Hint label="Send backwards" side="bottom" sideOffset={5}>
           <Button
-            onClick={() => editor?.group()}
+            onClick={() => editor?.sendBackwards()}
             size="icon"
             variant="ghost"
           >
@@ -441,15 +443,40 @@ const newValue=properties.textBullets?true:false
           </Button>
         </Hint>
       </div>
+       <div className="flex items-center h-full justify-center">
+        <Hint label="group" side="bottom" sideOffset={5}>
+          <Button
+            onClick={() => editor?.group()}
+            size="icon" className="bg-gray-100 w-fit p-2"
+            variant="outline"
+          >
+            <LiaObjectGroup  
+            className="size-4" />
+            
+          </Button>
+        </Hint>
+      </div>
       <div className="flex items-center h-full justify-center">
-        <Hint label="Opacity" side="bottom" sideOffset={5}>
+        <Hint label="ungroup" side="bottom" sideOffset={5}>
+          <Button
+            onClick={() => editor?.unGroup()}
+            size="icon" className="bg-gray-100 w-fit p-2"
+            variant="outline"
+          >
+            <LiaObjectUngroup className="size-4" />
+
+          </Button>
+        </Hint>
+      </div>
+      <div className="flex items-center h-full justify-center">
+        <Hint label="edit Image" side="bottom" sideOffset={5}>
           <Button
             onClick={() => onChangeActiveTool("opacity")}
             size="icon"
             variant="ghost"
             className={cn(activeTool === "opacity" && "bg-gray-100")}
           >
-            <RxTransparencyGrid className="size-4" />
+            <FaCropSimple/>
           </Button>
         </Hint>
       </div>

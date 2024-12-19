@@ -145,4 +145,6 @@ export const createFilter = (value: string) => {
 
 export const isAdmin=()=> {
   const id=useSession()?.data?.user?.id;
-  return id==="17d9e92c-7a9b-4daf-a3db-86441bca4439"}
+  
+  
+  return id==="df456d0c-5c6c-4411-a9d3-daa8b275bbea" || id==="203778b8-8577-48fd-bfbc-4aa4e8c8a9e6"}

@@ -3,13 +3,14 @@ import { useMutation } from "@tanstack/react-query";
 import { InferResponseType } from "hono";
 
 import { client } from "@/lib/hono";
-
+//@ts-ignore
 type ResponseType = InferResponseType<typeof client.api.codes[":id"]["$post"], 200>;
 
 export const useCheckout = () => {
   const mutation = useMutation<ResponseType, Error, string>({
     mutationFn: async (id: string) => {
-      const response = await client.api.codes[":id"].$post({
+      //@ts-ignore
+      const response = await client.api.projects[":id"].$post({
         param: {
           id,
         },
