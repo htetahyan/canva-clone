@@ -19,6 +19,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import Image from "next/image";
+import { UploadButton } from "@/lib/uploadthing";
 
 interface OpacitySidebarProps {
   editor: Editor | undefined;
@@ -39,7 +40,11 @@ export const OpacitySidebar = ({
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const selectedObjectType = editor?.selectedObjects[0]?.type;
+console.log(selectedObjectType);
 
+ 
+  const isImage = selectedObjectType === "image";
   useEffect(() => {
     if (selectedObject) {
       setOpacity(selectedObject.get("opacity") || 1);
@@ -86,7 +91,30 @@ export const OpacitySidebar = ({
             max={1}
             min={0}
             step={0.01}
-          />
+          />  
+          <ToolSidebarHeader
+        title="Add Image"
+        description="Add new Image"
+      />
+          <UploadButton
+          appearance={{
+            button: "w-full text-sm font-medium",
+            allowedContent: "hidden",
+          }}
+          content={{
+            button: "Upload Image",
+          }}
+          endpoint="imageUploader"
+          onClientUploadComplete={(res) => {
+            editor?.addImage(res[0].url);
+          }}
+        />
+   
+               {isImage && (<>
+                <ToolSidebarHeader
+        title="crop"
+        description="crop image"
+      />
           <Button
             className="w-full text-sm font-medium"
             onClick={() => {setIsCropModalOpen(true)
@@ -112,8 +140,10 @@ export const OpacitySidebar = ({
               isLoading={isLoading}
               setIsLoading={setIsLoading}
             />
-          )}
+          )} </>
+        )}
         </div>
+       
       </ScrollArea>
       <ToolSidebarClose onClick={onClose} />
     </aside>

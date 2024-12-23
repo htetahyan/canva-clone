@@ -6,6 +6,10 @@ html,
 body {
   height: 100%;
 }
+@font-face{
+  font-family: ဧရာဂျူနို;
+  src:url('/fonts/AyarJuno.ttf')
+}
 
 @layer base {
   :root {

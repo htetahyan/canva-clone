@@ -15,8 +15,7 @@ export const useCreateProject = () => {
       const response = await client.api.projects.$post({ json });
 
       if (!response.ok) {
-        // Parse the error response to extract the message
-        const errorResponse = await response.json() as any;
+        const errorResponse = (await response.json()) as any;
         throw new Error(errorResponse.error || "Something went wrong");
       }
 
@@ -28,10 +27,42 @@ export const useCreateProject = () => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
     },
     onError: (error) => {
-      // Display the error message from the API response
       toast.error(
         error.message ||
           "Failed to create project. The session token may have expired, logout and login again, and everything will work fine."
+      );
+    },
+  });
+
+  return mutation;
+};
+
+export const useChangeName = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation<ResponseType, Error, { id: string; name: string }>({
+    mutationFn: async ({ id, name }) => {
+      const response = await client.api.projects[":id"].name.$patch({
+        param: { id },
+        json: { name },
+      });
+
+      if (!response.ok) {
+        const errorResponse = (await response.json()) as any;
+        throw new Error(errorResponse.error || "Something went wrong");
+      }
+
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast.success("Project name updated.");
+
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+    },
+    onError: (error) => {
+      toast.error(
+        error.message ||
+          "Failed to update project name. The session token may have expired, logout and login again, and everything will work fine."
       );
     },
   });

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { Hono } from "hono";
 import bcrypt from "bcryptjs";
-import { eq } from "drizzle-orm";
+import { asc, desc, eq } from "drizzle-orm";
 import { zValidator } from "@hono/zod-validator";
 
 import { db } from "@/db/drizzle";
@@ -18,6 +18,7 @@ const app = new Hono()
         password: z.string().min(3).max(20),
       })
     ),
+    
     async (c) => {
       const { username, password } = c.req.valid("json");
 
@@ -41,6 +42,47 @@ const app = new Hono()
       
       return c.json(null, 200);
     },
+  ).get("/", 
+    zValidator(
+      "query",
+      z.object({
+          page: z.coerce.number(),
+          limit: z.coerce.number(),
+      }),
+  ),
+    async (c) => {
+      const { page, limit } = c.req.valid("query");
+      const data = await db.select().from(users).limit(limit).offset((page - 1) * limit).orderBy(desc(users.credits));
+      return c.json({ data , nextPage: data.length === limit ? page + 1 : null });
+    }
+  ).patch(
+    "/credits/:id",
+    zValidator("param", z.object({ id: z.string() })), // Validate route parameter
+    zValidator(
+      "json",
+      z.object({
+        credits: z.coerce.number(), // Ensure `credits` is a number
+      })
+    ),
+    async (c) => {
+      const { id } = c.req.valid("param");
+      const { credits } = c.req.valid("json");
+  
+      // Fetch the user from the database
+      const user = await db.select().from(users).where(eq(users.id, id));
+  
+      if (user.length === 0) {
+        // Return 404 if user not found
+        return c.json({ error: "User not found" }, 404);
+      }
+  
+      // Update the user's credits
+      await db.update(users).set({ credits }).where(eq(users.id, id));
+  
+      // Respond with the updated user data
+      return c.json({ data: { ...user[0], credits } });
+    }
   );
+  
 
 export default app;

@@ -8,7 +8,7 @@ import { auth } from "@/auth";
 import { Modals } from "@/components/modals";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "@/components/providers";
-
+import localFont from 'next/font/local'
 import "./globals.css";
 
 const inter = Inter({subsets:['cyrillic-ext']})
@@ -28,7 +28,7 @@ export default async function RootLayout({
   return (
     <SessionProvider session={session}>
       <html lang="en">
-        <body className={inter.className}>
+        <body className={inter.className }>
           <Providers>
             <Toaster />
             <Modals />

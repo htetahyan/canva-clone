@@ -469,7 +469,7 @@ const newValue=properties.textBullets?true:false
         </Hint>
       </div>
       <div className="flex items-center h-full justify-center">
-        <Hint label="edit Image" side="bottom" sideOffset={5}>
+        <Hint label="edit/opacity" side="bottom" sideOffset={5}>
           <Button
             onClick={() => onChangeActiveTool("opacity")}
             size="icon"

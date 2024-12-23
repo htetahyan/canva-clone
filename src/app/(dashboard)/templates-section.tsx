@@ -1,5 +1,4 @@
-"use client";
-
+'use client';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader, TriangleAlert, ClipboardCopy } from "lucide-react";
@@ -60,9 +59,7 @@ export const TemplatesSection: React.FC = () => {
   if (isLoading) {
     return (
       <div className="space-y-4">
-        <h3 className="font-semibold text-lg">
-          Start from a template
-        </h3>
+        <h3 className="font-semibold text-lg">ပုံစံတစ်ခုကိုရွေးပါ</h3>
         <div className="flex items-center justify-center h-32">
           <Loader className="size-6 text-muted-foreground animate-spin" />
         </div>
@@ -73,14 +70,10 @@ export const TemplatesSection: React.FC = () => {
   if (isError) {
     return (
       <div className="space-y-4">
-        <h3 className="font-semibold text-lg">
-          Start from a template
-        </h3>
+        <h3 className="font-semibold text-lg">ပုံစံတစ်ခုကိုရွေးပါ</h3>
         <div className="flex flex-col gap-y-4 items-center justify-center h-32">
           <TriangleAlert className="size-6 text-muted-foreground" />
-          <p>
-            Failed to load templates
-          </p>
+          <p>ပုံစံများမရှိသေးပါ</p>
         </div>
       </div>
     );
@@ -92,9 +85,7 @@ export const TemplatesSection: React.FC = () => {
 
   return (
     <div>
-      <h3 className="font-semibold text-lg">
-        Start from a template
-      </h3>
+      <h3 className="font-semibold text-lg">ပုံစံတစ်ခုကိုရွေးချယ်၍ စတင်ပါ</h3>
       <div className="grid grid-cols-2 md:grid-cols-4 mt-4 gap-4">
         {data?.map((template) => (
           <TemplateCard
@@ -116,9 +107,9 @@ export const TemplatesSection: React.FC = () => {
           <DialogContent className="max-w-lg mx-auto bg-white rounded-lg shadow-lg p-6">
             <DialogHeader className="flex items-center justify-between">
               <div>
-                <DialogTitle className="text-center">Preview Canvas</DialogTitle>
+                <DialogTitle className="text-center">မည်သူမဆိုကြည့်ရှုနိုင်သည်</DialogTitle>
                 <DialogDescription className="text-center text-sm text-muted-foreground">
-                  Preview the template before creating the project.
+                  ပရောဂျက်တစ်ခုကိုဖန်တီးရန် မည်သူမဆိုကြည့်ရှုနိုင်ပါသည်။
                 </DialogDescription>
               </div>
               <Button
@@ -136,9 +127,9 @@ export const TemplatesSection: React.FC = () => {
 
             <div className="p-4 text-center">
               {selectedTemplate.isCurrentUserOwner ? (
-                <p className="text-sm text-green-600">You own this template</p>
+                <p className="text-sm text-green-600">ဤပုံစံကို သင့်အနေဖြင့်ပိုင်ဆိုင်ထားပါသည်။</p>
               ) : (
-                <p className="text-sm text-red-600">This will cost one credit</p>
+                <p className="text-sm text-red-600">ဤပုံစံသည် ကရက်ဒစ်တစ်ခုကုန်ကျမည်</p>
               )}
             </div>
 
@@ -148,14 +139,14 @@ export const TemplatesSection: React.FC = () => {
                 onClick={handleCreateProject}
                 disabled={mutation.isPending}
               >
-                Create Project
+                ပရောဂျက်ဖန်တီးပါ
               </Button>
               <Button
                 className="w-full"
                 variant="outline"
                 onClick={() => setIsPreviewOpen(false)}
               >
-                Cancel
+                ရွေးချယ်မှုပယ်ဖျက်ပါ
               </Button>
             </DialogFooter>
           </DialogContent>

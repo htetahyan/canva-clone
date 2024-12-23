@@ -11,11 +11,12 @@ import { eq } from "drizzle-orm";
 export default async function Home() {
   await protectServer();
 const a= await auth();
+
 const user= await db.select().from(users).where(eq(users.id, a!.user!.id!))
 
   return (
     <div className="flex flex-col space-y-6 max-w-screen-xl mx-auto pb-10">
-    {  user[0].isAdmin && <Banner />}
+    {  user[0]?.isAdmin && <Banner />}
       <TemplatesSection />
       <ProjectsSection />
     </div>

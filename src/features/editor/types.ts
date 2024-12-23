@@ -41,6 +41,7 @@ export const filters = [
 
 export const fonts = [
   "Arial",
+  "ဧရာဂျူနို",
   "Arial Black",
   "Verdana",
   "Helvetica",
@@ -58,6 +59,7 @@ export const fonts = [
   "Lucida Sans Unicode",
   "Geneva",
   "Lucida Console",
+  
 ];
 
 export const selectionDependentTools = [

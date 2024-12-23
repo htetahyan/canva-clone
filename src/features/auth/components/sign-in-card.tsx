@@ -48,13 +48,13 @@ export const SignInCard = () => {
   return (
     <Card className="w-full h-full p-8">
       <CardHeader className="px-0 pt-0">
-        <CardTitle>Login to continue</CardTitle>
-        <CardDescription>Use your username or another service to continue</CardDescription>
+        <CardTitle>အကောင့်ဝင်ရန်</CardTitle>
+        <CardDescription> သင့်အသုံးပြုသူအမည် နှင့် ပက်စ်ဝေါ့ကိုထည့်ပေးပါ</CardDescription>
       </CardHeader>
       {!!error && (
         <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive mb-6">
           <TriangleAlert className="size-4" />
-          <p>Invalid username or password</p>
+          <p>အသုံးပြုသူအမည် သို့မဟုတ် ပက်စ်ဝေါ့ မမှန်ကန်ပါ။</p>
         </div>
       )}
       <CardContent className="space-y-5 px-0 pb-0">
@@ -79,7 +79,7 @@ export const SignInCard = () => {
             {loadingLogin ? (
               <Loader2 className="mr-2 size-5 top-2.5 left-2.5 animate-spin" />
             ) : (
-              "Continue"
+              "အကောင့်ဝင်ရန်"
             )}
           </Button>
         </form>

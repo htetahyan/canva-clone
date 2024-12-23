@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useState, useCallback } from "react";
 import { CiFileOn } from "react-icons/ci";
 import { BsCloudCheck, BsCloudSlash } from "react-icons/bs";
 import { useFilePicker } from "use-file-picker";
@@ -28,13 +29,16 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useChangeName } from "@/features/projects/api/use-create-project";
+import { debounce } from "lodash";
+import { Input } from "@/components/ui/input";
 
 interface NavbarProps {
   id: string;
   editor: Editor | undefined;
   activeTool: ActiveTool;
   onChangeActiveTool: (tool: ActiveTool) => void;
-};
+}
 
 export const Navbar = ({
   id,
@@ -42,6 +46,7 @@ export const Navbar = ({
   activeTool,
   onChangeActiveTool,
 }: NavbarProps) => {
+  
   const data = useMutationState({
     filters: {
       mutationKey: ["project", { id }],
@@ -68,10 +73,36 @@ export const Navbar = ({
       }
     },
   });
+  const [projectName, setProjectName] = useState("Untitled Project");
+
+  const { mutate: changeProjectName, isPending: isUpdatingName } = useChangeName();
+
+  const debouncedChangeProjectName = useCallback(
+    debounce((newName: string) => {
+      changeProjectName({ id, name: newName });
+    }, 1000),
+    [id, changeProjectName]
+  );
+
+  const handleProjectNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    setProjectName(newName);
+    debouncedChangeProjectName(newName);
+  };
+
+  const handleProjectNameBlur = () => {
+    changeProjectName({ id, name: projectName });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      changeProjectName({ id, name: projectName });
+    }
+  };
 
   return (
     <nav className="w-full flex items-center p-4 h-[68px] gap-x-8 border-b lg:pl-[34px]">
-    {/*   <Logo /> */}
       <div className="w-full flex items-center gap-x-1 h-full">
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
@@ -210,6 +241,16 @@ export const Navbar = ({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          <Input
+            type="text"
+            value={projectName}
+            onChange={handleProjectNameChange}
+            onBlur={handleProjectNameBlur}
+            onKeyDown={handleKeyDown}
+            className="border rounded px-2 py-1"
+            placeholder="Project Name"
+          />
+          {isUpdatingName && <span className="text-muted-foreground">Updating...</span>}
           <UserButton />
         </div>
       </div>
